@@ -1,5 +1,7 @@
 code/mnist.pkl.gz
 html
 *.pyc
+*.swp
+*.x
 *~
 *.bmark
