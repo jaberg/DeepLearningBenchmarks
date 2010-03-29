@@ -141,7 +141,7 @@ then
     local x = os.clock()
     trainer:train(dset_32x32)
     -- we're not using Xent, but using Xent would be even slower
-    io.write("convnet_32x32_c5x5_s2x2_c5x5_s2x2_200_10", "\t",
+    io.write("convnet_32x32_c5x5_s2x2_c5x5_s2x2_10", "\t",
         "torch5", "\t",
         string.format("%.2f\n", os.clock() - x), "\n")
 
