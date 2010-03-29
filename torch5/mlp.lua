@@ -20,7 +20,7 @@ for i=1,dataset:size() do
   dataset[i] = {lab.randn(inputs), (i % outputs)+1}
 end
 
-if true -- MLP 784/10
+if false -- MLP 784/10
 then
     mlp = nn.Sequential();                 -- make a multi-layer perceptron
     mlp:add(nn.Linear(inputs, outputs))
@@ -45,7 +45,7 @@ else
 end
 
 
-if true -- MLP 784/500/10
+if false -- MLP 784/500/10
 then
 
     mlp = nn.Sequential();                 -- make a multi-layer perceptron
@@ -73,7 +73,7 @@ else
 end
 
 
-if true --MLP 784/1000/1000/1000/10
+if false --MLP 784/1000/1000/1000/10
 then
 
     mlp = nn.Sequential();                 -- make a multi-layer perceptron
@@ -124,12 +124,13 @@ then
     mlp:add(nn.Tanh())
     mlp:add(nn.SpatialSubSampling(6, 2, 2, 2, 2)) --output 14x14
     mlp:add(nn.Tanh())
-    mlp:add(nn.SpatialConvolution(6, 20, 5, 5)) -- output 10x10
+    mlp:add(nn.SpatialConvolution(6, 16, 5, 5)) -- output 10x10
     mlp:add(nn.Tanh())
-    mlp:add(nn.SpatialSubSampling(20, 2, 2, 2, 2)) -- output 5x5
+    mlp:add(nn.SpatialSubSampling(16, 2, 2, 2, 2)) -- output 5x5
     mlp:add(nn.Tanh())
-    mlp:add(nn.Reshape(20*5*5))
-    mlp:add(nn.Linear(20*5*5, outputs))
+    mlp:add(nn.Reshape(16*5*5))
+    mlp:add(nn.Linear(16*5*5, 120))
+    mlp:add(nn.Linear(120, outputs))
     mlp:add(nn.LogSoftMax())
 
     criterion = nn.ClassNLLCriterion()  
@@ -141,13 +142,7 @@ then
     local x = os.clock()
     trainer:train(dset_32x32)
     -- we're not using Xent, but using Xent would be even slower
-    io.write("convnet_32x32_c5x5_s2x2_c5x5_s2x2_10", "\t",
+    io.write("convnet_32x32_c5x5_s2x2_c5x5_s2x2_120_10", "\t",
         "torch5", "\t",
         string.format("%.2f\n", os.clock() - x), "\n")
-
-else
-    io.write("# convnet_32x32_c5x5_s2x2_c5x5_s2x2_200_10", "\t",
-        "torch5", "\t",
-        "0.0", "\n")
-
 end
