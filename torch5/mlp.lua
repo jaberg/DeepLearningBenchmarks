@@ -1,4 +1,4 @@
-#!/usr/local/bin/lua
+#!/usr/bin/env lua
 
 require "lab"
 require "os"
@@ -20,7 +20,7 @@ for i=1,dataset:size() do
   dataset[i] = {lab.randn(inputs), (i % outputs)+1}
 end
 
-if false -- MLP 784/10
+if true -- MLP 784/10
 then
     mlp = nn.Sequential();                 -- make a multi-layer perceptron
     mlp:add(nn.Linear(inputs, outputs))
@@ -45,7 +45,7 @@ else
 end
 
 
-if false -- MLP 784/500/10
+if true -- MLP 784/500/10
 then
 
     mlp = nn.Sequential();                 -- make a multi-layer perceptron
@@ -73,7 +73,7 @@ else
 end
 
 
-if false --MLP 784/1000/1000/1000/10
+if true --MLP 784/1000/1000/1000/10
 then
 
     mlp = nn.Sequential();                 -- make a multi-layer perceptron
