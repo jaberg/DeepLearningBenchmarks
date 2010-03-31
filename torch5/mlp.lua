@@ -5,7 +5,7 @@ require "os"
 require "nn"
 
 
-n_examples=10000;
+n_examples=6000;
 outputs=10;
 
 io.output("torch5.bmark")
@@ -37,7 +37,7 @@ then
     -- we're not using Xent, but using Xent would be even slower
     io.write(string.format("mlp_%i_%i", inputs, outputs), "\t",
         "torch5", "\t",
-        string.format("%.2f\n", os.clock() - x), "\n")
+        string.format("%.2f\n", n_examples/(os.clock() - x)), "\n")
 else
     io.write(string.format("# mlp_%i_%i", inputs, outputs), "\t",
         "torch5", "\t",
@@ -65,7 +65,7 @@ then
     -- we're not using Xent, but using Xent would be even slower
     io.write(string.format("mlp_%i_500_%i", inputs, outputs), "\t",
         "torch5", "\t",
-        string.format("%.2f\n", os.clock() - x), "\n")
+        string.format("%.2f\n", n_examples/(os.clock() - x)), "\n")
 else
     io.write(string.format("# mlp_%i_500_%i", inputs, outputs), "\t",
         "torch5", "\t",
@@ -97,7 +97,7 @@ then
     -- we're not using Xent, but using Xent would be even slower
     io.write("mlp_784_1000_1000_1000_10", "\t",
         "torch5", "\t",
-        string.format("%.2f\n", os.clock() - x), "\n")
+        string.format("%.2f\n", n_examples/(os.clock() - x)), "\n")
 
 else
     io.write("# mlp_784_1000_1000_1000_10", "\t",
@@ -144,5 +144,5 @@ then
     -- we're not using Xent, but using Xent would be even slower
     io.write("convnet_32x32_c5x5_s2x2_c5x5_s2x2_120_10", "\t",
         "torch5", "\t",
-        string.format("%.2f\n", os.clock() - x), "\n")
+        string.format("%.2f\n", n_examples/(os.clock() - x)), "\n")
 end
