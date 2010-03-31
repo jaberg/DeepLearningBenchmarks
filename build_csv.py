@@ -30,6 +30,7 @@ if __name__ == '__main__':
         print k
         r_k = [(v[i],i) for i in v]
         r_k.sort()
+        r_k.reverse()
         for t, i in r_k:
             print "   %8.2f - %s" %(t, i)
         print ''
