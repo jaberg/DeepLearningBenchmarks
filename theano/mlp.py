@@ -1,4 +1,4 @@
-import time
+import time, socket
 from theano.tensor import lscalar, lvector, matrix, tanh, dot, grad, log, arange
 from theano.tensor.nnet import softmax
 from theano import shared, function, config
@@ -30,7 +30,11 @@ nsi = lscalar()
 sx = data_x[si:si+nsi]
 sy = data_y[si:si+nsi]
 
-bmark = open("mlp_%s_%s.bmark" %(config.device, config.floatX), 'w')
+bmark = open("%smlp_%s_%s.bmark" %(
+    socket.gethostname(),
+    config.device,
+    config.floatX),
+    'w')
 
 def reportmodel(model, batchsize, t):
     bmark.write("%s\t" % model)
