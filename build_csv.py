@@ -32,5 +32,5 @@ if __name__ == '__main__':
         r_k.sort()
         r_k.reverse()
         for t, i in r_k:
-            print "   %8.2f - %s" %(t, i)
+            print "   %10.2f - %s" %(t, i)
         print ''
