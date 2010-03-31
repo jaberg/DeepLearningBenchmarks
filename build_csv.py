@@ -3,10 +3,10 @@ import os
 import sys
 
 
-def build_results():
+def build_results(path='.'):
     results = {} # map task -> impl -> time
 
-    for root, dirs, files in os.walk('.'):
+    for root, dirs, files in os.walk(path):
         for bmark in [f for f in files if f.endswith('.bmark')]:
             for line in open(os.path.join(root,bmark)):
                 if not line or line == "\n":
@@ -24,7 +24,7 @@ def build_results():
     return results
 
 if __name__ == '__main__':
-    r = build_results()
+    r = build_results(sys.argv[1])
 
     for k,v in r.items():
         print k
