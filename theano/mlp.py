@@ -15,12 +15,12 @@ def randint(size, high):
 def zeros(*size):
     return numpy.zeros(size, dtype=config.floatX)
 
-n_examples=10000
+n_examples=6000
 inputs=784
 outputs=10
 lr=numpy.asarray(0.01, dtype=config.floatX)
 
-batchsize=50
+batchsize=60
 
 data_x = shared(randn(n_examples, inputs))
 data_y = shared(randint((n_examples,), outputs))
@@ -34,9 +34,13 @@ bmark = open("mlp_%s_%s.bmark" %(config.device, config.floatX), 'w')
 
 def reportmodel(model, batchsize, t):
     bmark.write("%s\t" % model)
-    bmark.write("theano w batchsize=%i device=%s dtype=%s\t" % (
-        batchsize, config.device, config.floatX))
-    bmark.write("%.2f\n"%t)
+    if config.floatX == 'float32':
+        prec = 'float'
+    else:
+        prec = 'double'
+    bmark.write("theano{%s/%s/%i}\t" % (
+        config.device[0], prec, batchsize))
+    bmark.write("%.2f\n"%(n_examples/t)) # report examples / second
 
 def eval_and_report(train, name):
     t = time.time()
