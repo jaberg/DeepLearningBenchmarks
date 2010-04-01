@@ -65,5 +65,5 @@ ax.legend( [r[0] for r in rects], impls, 'upper left' )
 
 subplots_adjust(left=.09, bottom=.14, right=.97, top=.95)
 
-plt.show()
+savefig('blah.pdf')
 
