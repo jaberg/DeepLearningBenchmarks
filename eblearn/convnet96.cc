@@ -17,15 +17,15 @@ typedef double t_net;
 int main(int argc, char **argv) { // regular main without gui
   init_drand(92394); // initialize random seed
 
-  intg n_examples = 1000; // maximum training set size: 60000
-  idxdim dims(1,32,32); // get order and dimensions of sample
+  intg n_examples = 100; // maximum training set size: 60000
+  idxdim dims(1,96,96); // get order and dimensions of sample
   
   //! create 1-of-n targets with target 1.0 for shown class, -1.0 for the rest
   idx<t_net> targets = create_target_matrix(10, 1.0);
-  idx<t_net> inputs(n_examples, 32, 32);
+  idx<t_net> inputs(n_examples, 96, 96);
 
-  parameter<t_net> theparam(60000); // create trainable parameter
-  lenet5<t_net> l5(theparam, 32, 32, 5, 5, 2, 2, 5, 5, 2, 2, 120, 10);
+  parameter<t_net> theparam(6000); // create trainable parameter
+  lenet5<t_net> l5(theparam, 96, 96, 7, 7, 3, 3, 7, 7, 3, 3, 120, 10);
     // TODO: use an all-to-all connection table in second layer convolution
     // Because that's what the other packages implement.
   supervised_euclidean_machine<t_net, ubyte> thenet(
@@ -49,19 +49,18 @@ int main(int argc, char **argv) { // regular main without gui
          /* double g_t*/  0.0);
   infer_param infp;
 
-  state_idx<t_net> dummy_input(1, 32, 32); 
-  int J = 2000;
+  state_idx<t_net> dummy_input(1, 96, 96); 
   double t = time_time();
-  for (intg j = 0; j < J; ++j)
+  for (intg j = 0; j < n_examples; ++j)
   {
 	thetrainer.learn_sample(dummy_input, j%10, gdp);
         // TODO: iterate over mock dataset to simulate more realistic
         // memaccess pattern
     }
 #ifdef USED_IPP
-  cout << "ConvSmall\teblearn{ipp}\t" << J / (time_time() - t) << endl;
+  cout << "ConvMed\teblearn{ipp}\t" << n_examples / (time_time() - t) << endl;
 #else
-  cout << "ConvSmall\teblearn\t" << J / (time_time() - t) << endl;
+  cout << "ConvMed\teblearn\t" << n_examples / (time_time() - t) << endl;
 #endif
   return 0;
 }

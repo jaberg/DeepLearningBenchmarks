@@ -2,10 +2,6 @@
 #include <time.h>
 #include <sys/time.h>
 
-#ifdef __GUI__
-#include "libeblearngui.h"
-#endif
-
 using namespace std;
 using namespace ebl; // all eblearn objects are under the ebl namespace
 
@@ -90,11 +86,13 @@ int main(int argc, char **argv) { // regular main without gui
   thetrainer.init(train_ds, &trainmeter);
   // training on lowest size common to all classes (times # classes)
   // now do training iterations
-  cerr << "... Training network from " << train_ds.get_lowest_common_size() << endl;
+  //cerr << "... Training network from " << train_ds.get_lowest_common_size() << endl;
   double t = time_time();
   train_ds.fprop(*thetrainer.input, thetrainer.label);
   lab = thetrainer.label.get();
-  for (intg j = 0; j < train_ds.get_lowest_common_size(); ++j) {
+  //int J = train_ds.get_lowest_common_size();
+  int J = 2000;
+  for (intg j = 0; j < J; ++j) {
 	//train_ds.fprop(*thetrainer.input, thetrainer.label);
 	//lab = thetrainer.label.get();
 	thetrainer.learn_sample(*thetrainer.input, lab, gdp);
@@ -103,7 +101,11 @@ int main(int argc, char **argv) { // regular main without gui
 	//      log.update(age, output, label.get(), energy);
 	//train_ds.next_train();
     }
-    cerr << "... Iteration took" << t - time_time() << "seconds" << endl;
+#ifdef __IPP__
+    cout << "lenet5\teblearn{ipp}\t" << J / (time_time() - t) << endl;
+#else
+    cout << "lenet5\teblearn\t" << J / (time_time() - t) << endl;
+#endif
   return 0;
 }
 
