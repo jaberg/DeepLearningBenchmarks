@@ -5,10 +5,35 @@ require "os"
 require "nn"
 
 
-n_examples=6000;
+n_examples=12000;
 outputs=10;
 
 io.output("torch5.bmark")
+
+if true then -- MLP 32/10
+    dataset={};
+    function dataset:size() return n_examples end
+    inputs=32;
+    for i=1,dataset:size() do 
+      dataset[i] = {lab.randn(inputs), (i % outputs)+1}
+    end
+    mlp = nn.Sequential();                 -- make a multi-layer perceptron
+    mlp:add(nn.Linear(inputs, outputs))
+    mlp:add(nn.LogSoftMax())
+
+    criterion = nn.ClassNLLCriterion()  
+    trainer = nn.StochasticGradient(mlp, criterion)
+
+    trainer.learningRate = 0.01
+    trainer.shuffleIndices = false
+    trainer.maxIteration = 1
+    local x = os.clock()
+    trainer:train(dataset)
+    -- we're not using Xent, but using Xent would be even slower
+    io.write(string.format("mlp_%i_%i", inputs, outputs), "\t",
+        "torch5", "\t",
+        string.format("%.2f\n", n_examples/(os.clock() - x)), "\n")
+end
 
 
 dataset={};
@@ -142,7 +167,90 @@ then
     local x = os.clock()
     trainer:train(dset_32x32)
     -- we're not using Xent, but using Xent would be even slower
-    io.write("convnet_32x32_c5x5_s2x2_c5x5_s2x2_120_10", "\t",
+    io.write("ConvSmall", "\t",
         "torch5", "\t",
         string.format("%.2f\n", n_examples/(os.clock() - x)), "\n")
+end
+
+dset_96x96={};
+function dset_96x96:size() return 100 end
+for i=1,dset_96x96:size() do 
+  dset_96x96[i] = {lab.randn(96,96,1), (i % outputs)+1}
+end
+
+if true --LeNet5-like 96x96
+then
+
+    -- There is no max-pooling implemented, just avg pooling.
+    -- So I added tanh between every layer to separate true conv layers with
+    -- the subsampling (which is just a convolution with 1s)
+
+    mlp = nn.Sequential();                 -- make a multi-layer perceptron
+    mlp:add(nn.SpatialConvolution(1, 6, 7, 7)) -- output 90x90
+    mlp:add(nn.Tanh())
+    mlp:add(nn.SpatialSubSampling(6, 3, 3, 3, 3)) --output 30x30
+    mlp:add(nn.Tanh())
+    mlp:add(nn.SpatialConvolution(6, 16, 7, 7)) -- output 24x24
+    mlp:add(nn.Tanh())
+    mlp:add(nn.SpatialSubSampling(16, 3, 3, 3, 3)) -- output 8x8
+    mlp:add(nn.Tanh())
+    mlp:add(nn.Reshape(16*8*8))
+    mlp:add(nn.Linear(16*8*8, 120))
+    mlp:add(nn.Linear(120, outputs))
+    mlp:add(nn.LogSoftMax())
+
+    criterion = nn.ClassNLLCriterion()  
+    trainer = nn.StochasticGradient(mlp, criterion)
+
+    trainer.learningRate = 0.01
+    trainer.shuffleIndices = false
+    trainer.maxIteration = 1
+    local x = os.clock()
+    trainer:train(dset_96x96)
+    -- we're not using Xent, but using Xent would be even slower
+    io.write("ConvMed", "\t",
+        "torch5", "\t",
+        string.format("%.2f\n", dset_96x96:size()/(os.clock() - x)), "\n")
+end
+
+
+dset_256x256={};
+function dset_256x256:size() return 20 end
+for i=1,dset_256x256:size() do 
+  dset_256x256[i] = {lab.randn(256,256,1), (i % outputs)+1}
+end
+
+if true --LeNet5-like 256x256
+then
+
+    -- There is no max-pooling implemented, just avg pooling.
+    -- So I added tanh between every layer to separate true conv layers with
+    -- the subsampling (which is just a convolution with 1s)
+
+    mlp = nn.Sequential();                 -- make a multi-layer perceptron
+    mlp:add(nn.SpatialConvolution(1, 6, 7, 7)) -- output 250x250
+    mlp:add(nn.Tanh())
+    mlp:add(nn.SpatialSubSampling(6, 5, 5, 5, 5)) --output 50x50
+    mlp:add(nn.Tanh())
+    mlp:add(nn.SpatialConvolution(6, 16, 7, 7)) -- output 44x44
+    mlp:add(nn.Tanh())
+    mlp:add(nn.SpatialSubSampling(16, 4, 4, 4, 4)) -- output 11x11
+    mlp:add(nn.Tanh())
+    mlp:add(nn.Reshape(16*11*11))
+    mlp:add(nn.Linear(16*11*11, 120))
+    mlp:add(nn.Linear(120, outputs))
+    mlp:add(nn.LogSoftMax())
+
+    criterion = nn.ClassNLLCriterion()  
+    trainer = nn.StochasticGradient(mlp, criterion)
+
+    trainer.learningRate = 0.01
+    trainer.shuffleIndices = false
+    trainer.maxIteration = 1
+    local x = os.clock()
+    trainer:train(dset_256x256)
+    -- we're not using Xent, but using Xent would be even slower
+    io.write("ConvLarge", "\t",
+        "torch5", "\t",
+        string.format("%.2f\n", dset_256x256:size()/(os.clock() - x)), "\n")
 end
