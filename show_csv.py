@@ -10,7 +10,7 @@ def rcolor():
 
 from build_csv import build_results
 
-results = build_results() # dict task -> impl -> time
+results = build_results(sys.argv[1]) # dict task -> impl -> time
 
 n_tasks = len(results)
 
