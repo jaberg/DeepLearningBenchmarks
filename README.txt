@@ -38,14 +38,15 @@ daa_1024_1024
 Convolutional
 -------------
 
-LeNet5_32x32
+ConvSmall
 - train from 10K 32x32 inputs, as in LeNet5
+- convnet_32x32_c5x5_s2x2_c5x5_s2x2_120_10
 
-LeNet7_96x96
+ConvMed
 - train from 10K 96x96 images
 
-LeNet7_256x256x3
-- train from 10K 256x256 rgb images
+ConvLarge
+- train from 10K 256x256 images
 
 
 
