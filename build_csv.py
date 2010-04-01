@@ -26,7 +26,11 @@ def build_results(path='.'):
 if __name__ == '__main__':
     r = build_results(sys.argv[1])
 
-    for k,v in r.items():
+    keys = r.keys()
+    keys.sort()
+
+    for k in keys:
+        v = r[k]
         print k
         r_k = [(v[i],i) for i in v]
         r_k.sort()
