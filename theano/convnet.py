@@ -17,44 +17,48 @@ def randint(size, high):
 def zeros(*size):
     return numpy.zeros(size, dtype=config.floatX)
 
-n_examples=6000
+n_examples=1000
 outputs=10
 lr=numpy.asarray(0.01, dtype=config.floatX)
 
-batchsize=60
-
-data_32x32 = shared(randn(n_examples, 1, 32, 32))
+data_x = shared(randn(n_examples, 1, 32, 32))
 data_y = shared(randint((n_examples,), outputs))
 
 si = lscalar()
 nsi = lscalar()
-sx = data_32x32[si:si+nsi]
+sx = data_x[si:si+nsi]
 sy = data_y[si:si+nsi]
 
 bmark = open("%s_convnet_%s_%s.bmark"% (socket.gethostname(), config.device, config.floatX), 'w')
 
-def reportmodel(model, batchsize, t):
-    bmark.write("%s\t" % model)
-    bmark.write("theano w batchsize=%i device=%s dtype=%s\t" % (
-        batchsize, config.device, config.floatX))
-    bmark.write("%.2f\n"%t)
+if config.floatX == 'float32':
+    prec = 'float'
+else:
+    prec = 'double'
 
-def eval_and_report(train, name, batchsizes):
+def reportmodel(model, batchsize, v):
+    bmark.write("%s\t" % model)
+    bmark.write("theano{%s/%s/%i}\t" % (
+        config.device[0], prec, batchsize))
+    bmark.write("%.2f\n"%v)
+
+def eval_and_report(train, name, batchsizes, N=n_examples):
     for bs in batchsizes:
-        assert n_examples % bs == 0 # can't be cheatin now...
+        assert N % bs == 0 # can't be cheatin now...
         t = time.time()
-        for i in xrange(n_examples/bs):
+        for i in xrange(N/bs):
             cost = train(i*bs, bs)
             if not (i % (1000/bs)):
                 print i*bs, cost
-        reportmodel(name, bs, time.time()-t)
+        reportmodel(name, bs, N/(time.time()-t))
 
-def bench_lenet5_like_32x32(batchsize):
+def bench_ConvSmall(batchsize):
+    data_x.value = randn(n_examples, 1, 32, 32)
     w0 = shared(rand(6, 1, 5, 5) * numpy.sqrt(6 / (25.)))
     b0 = shared(zeros(6))
-    w1 = shared(rand(20, 6, 5, 5) * numpy.sqrt(6 / (25.)))
-    b1 = shared(zeros(20))
-    vv = shared(rand(20*5*5, 120) * numpy.sqrt(6.0/20./25))
+    w1 = shared(rand(16, 6, 5, 5) * numpy.sqrt(6 / (25.)))
+    b1 = shared(zeros(16))
+    vv = shared(rand(16*5*5, 120) * numpy.sqrt(6.0/16./25))
     cc = shared(zeros(120))
     v = shared(zeros(120, outputs))
     c = shared(zeros(outputs))
@@ -62,13 +66,10 @@ def bench_lenet5_like_32x32(batchsize):
 
     c0 = tanh(conv2d(sx, w0, image_shape=(batchsize, 1, 32, 32), filter_shape=(6, 1, 5, 5)) + b0.dimshuffle(0, 'x', 'x'))
     s0 = tanh(max_pool2D(c0, (2,2))) # this is not the correct leNet5 model, but it's closer to
-    # the real
-    # model than the conv-with-1/4 that torch5 implements.
 
-    c1 = tanh(conv2d(s0, w1, image_shape=(batchsize, 6, 14, 14), filter_shape=(20,6,5,5)) + b1.dimshuffle(0, 'x', 'x'))
+    c1 = tanh(conv2d(s0, w1, image_shape=(batchsize, 6, 14, 14), filter_shape=(16,6,5,5)) + b1.dimshuffle(0, 'x', 'x'))
     s1 = tanh(max_pool2D(c1, (2,2)))
 
-    print s1.flatten(2).type, vv.type, cc.type, tanh(dot(s1.flatten(2), vv)+cc).type
     p_y_given_x = softmax(dot(tanh(dot(s1.flatten(2), vv)+cc), v)+c)
     nll = -log(p_y_given_x)[arange(sy.shape[0]), sy]
     cost = nll.mean()
@@ -78,9 +79,69 @@ def bench_lenet5_like_32x32(batchsize):
     train = function([si, nsi], cost,
             updates=[(p,p-lr*gp) for p,gp in zip(params, gparams)])
 
-    eval_and_report(train, "convnet_32x32_c5x5_s2x2_c5x5_s2x2_120_10", [batchsize])
+    eval_and_report(train, "ConvSmall", [batchsize], N=600)
+
+def bench_ConvMed(batchsize):
+    data_x.value = randn(n_examples, 1, 96, 96)
+    w0 = shared(rand(6, 1, 7, 7) * numpy.sqrt(6 / (25.)))
+    b0 = shared(zeros(6))
+    w1 = shared(rand(16, 6, 7, 7) * numpy.sqrt(6 / (25.)))
+    b1 = shared(zeros(16))
+    vv = shared(rand(16*8*8, 120) * numpy.sqrt(6.0/16./25))
+    cc = shared(zeros(120))
+    v = shared(zeros(120, outputs))
+    c = shared(zeros(outputs))
+    params = [w0, b0, w1, b1, v, c, vv, cc]
+
+    c0 = tanh(conv2d(sx, w0, image_shape=(batchsize, 1, 96, 96), filter_shape=(6,1,7,7)) + b0.dimshuffle(0, 'x', 'x'))
+    s0 = tanh(max_pool2D(c0, (3,3))) # this is not the correct leNet5 model, but it's closer to
+
+    c1 = tanh(conv2d(s0, w1, image_shape=(batchsize, 6, 30, 30), filter_shape=(16,6,7,7)) + b1.dimshuffle(0, 'x', 'x'))
+    s1 = tanh(max_pool2D(c1, (3,3)))
+
+    p_y_given_x = softmax(dot(tanh(dot(s1.flatten(2), vv)+cc), v)+c)
+    nll = -log(p_y_given_x)[arange(sy.shape[0]), sy]
+    cost = nll.mean()
+
+    gparams = grad(cost, params)
+
+    train = function([si, nsi], cost,
+            updates=[(p,p-lr*gp) for p,gp in zip(params, gparams)])
+    eval_and_report(train, "ConvMed", [batchsize], N=120)
+
+def bench_ConvLarge(batchsize):
+    data_x.value = randn(n_examples, 1, 256, 256)
+    w0 = shared(rand(6, 1, 7, 7) * numpy.sqrt(6 / (25.)))
+    b0 = shared(zeros(6))
+    w1 = shared(rand(16, 6, 7, 7) * numpy.sqrt(6 / (25.)))
+    b1 = shared(zeros(16))
+    vv = shared(rand(16*11*11, 120) * numpy.sqrt(6.0/16./25))
+    cc = shared(zeros(120))
+    v = shared(zeros(120, outputs))
+    c = shared(zeros(outputs))
+    params = [w0, b0, w1, b1, v, c, vv, cc]
+
+    c0 = tanh(conv2d(sx, w0, image_shape=(batchsize, 1, 256, 256), filter_shape=(6,1,7,7)) + b0.dimshuffle(0, 'x', 'x'))
+    s0 = tanh(max_pool2D(c0, (5,5))) # this is not the correct leNet5 model, but it's closer to
+
+    c1 = tanh(conv2d(s0, w1, image_shape=(batchsize, 6, 50, 50), filter_shape=(16,6,7,7)) + b1.dimshuffle(0, 'x', 'x'))
+    s1 = tanh(max_pool2D(c1, (4,4)))
+
+    p_y_given_x = softmax(dot(tanh(dot(s1.flatten(2), vv)+cc), v)+c)
+    nll = -log(p_y_given_x)[arange(sy.shape[0]), sy]
+    cost = nll.mean()
+
+    gparams = grad(cost, params)
+
+    train = function([si, nsi], cost,
+            updates=[(p,p-lr*gp) for p,gp in zip(params, gparams)])
+    eval_and_report(train, "ConvLarge", [batchsize], N=120)
 
 if __name__ == '__main__':
-    bench_lenet5_like_32x32(1)
-    bench_lenet5_like_32x32(50)
+    bench_ConvSmall(1)
+    bench_ConvSmall(60)
+    bench_ConvMed(1)
+    bench_ConvMed(60)
+    bench_ConvLarge(1)
+    bench_ConvLarge(60)
 
