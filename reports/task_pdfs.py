@@ -24,20 +24,23 @@ for task in results:
     scores = [(s,i) for (i,s) in results[task].items()]
     scores.sort()
 
-    rect = ax.bar(np.arange(len(scores)),
+    scores = scores[-8:]
+
+    rect = ax.barh(-.15+np.arange(len(scores)),
             [s for (s,i) in scores],
             0.3, # width
-            color=rcolor(),
-            log=True)
+            color='b',
+            log=False)
 
     # add some
-    ax.set_title('Preliminary benchmark results: %s'% task)
-    ax.set_ylabel('examples / second')
-    ax.set_xticks(np.arange(len(scores)))
-    ax.set_xticklabels( [i for (s,i) in scores] )
-    setp(gca().get_xticklabels(), rotation=30, fontsize=10)
+    ax.set_title('Preliminary Benchmark Results: %s'% task)
+    ax.set_yticklabels(['']+[i for (s,i) in scores], minor=True)
+    #ax.set_ylabel('Training Speed (examples/sec)')
+    #ax.set_xticks(np.arange(len(scores)), minor=False)
+    #ax.set_xticklabels([i[:3] for (s,i) in scores])#, minor=True
+    #setp(ax.get_xmajorticklabels(), rotation=90, fontsize=10)
 
-    subplots_adjust(left=.09, bottom=.14, right=.97, top=.95)
+    subplots_adjust(left=.29, bottom=.14, right=.97, top=.91)
 
     savefig('%s.pdf'%task)
 
