@@ -26,15 +26,21 @@ def build_results(path='.'):
 if __name__ == '__main__':
     r = build_results(sys.argv[1])
 
-    keys = r.keys()
-    keys.sort()
+    for k in r:
+        for i in r[k]:
+            print '%s\t%s\t%f' % (k,i,r[k][i])
 
-    for k in keys:
-        v = r[k]
-        print k
-        r_k = [(v[i],i) for i in v]
-        r_k.sort()
-        r_k.reverse()
-        for t, i in r_k:
-            print "   %10.2f - %s" %(t, i)
-        print ''
+    if 0:
+
+        keys = r.keys()
+        keys.sort()
+
+        for k in keys:
+            v = r[k]
+            print k
+            r_k = [(v[i],i) for i in v]
+            r_k.sort()
+            r_k.reverse()
+            for t, i in r_k:
+                print "   %10.2f - %s" %(t, i)
+            print ''
