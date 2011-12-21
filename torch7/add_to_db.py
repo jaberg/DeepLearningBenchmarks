@@ -42,7 +42,8 @@ def main():
             else:
                 print "ERROR: ", line
 
-    if 0:
+    if 1:
+        print "Writing database to", sys.argv[2]
         cPickle.dump(db, open(sys.argv[2], 'wb'))
     else:
         print "DEBUG FINAL DB:"
