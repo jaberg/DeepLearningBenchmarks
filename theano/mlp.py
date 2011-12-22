@@ -91,6 +91,18 @@ def online_mlp_784_10():
     except AttributeError:
         pass
     reportmodel('mlp_784_10_hack', 1, dt)
+    if 1:
+        t = time.time()
+        for i in xrange(n_examples):
+            train()
+        dt = time.time() - t
+        reportmodel('mlp_784_10_hack2', 1, dt)
+    if 1:
+        t = time.time()
+        fn = train.fn
+        for i in xrange(n_examples): fn()
+        dt = time.time() - t
+        reportmodel('mlp_784_10_hack3', 1, dt)
 
 def online_mlp_784_500_10():
     HUs=500
@@ -233,9 +245,9 @@ def bench_deep1000():
     eval_and_report(train, "mlp_784_1000_1000_1000_10")
 
 if __name__ == '__main__':
-    #online_mlp_784_10()
-    #online_mlp_784_500_10()
-    online_mlp_784_1000_1000_1000_10()
-    #bench_logreg()
-    #bench_mlp_500()
+    online_mlp_784_10()
+    online_mlp_784_500_10()
+    bench_logreg()
+    bench_mlp_500()
+    #online_mlp_784_1000_1000_1000_10()
     #bench_deep1000()
