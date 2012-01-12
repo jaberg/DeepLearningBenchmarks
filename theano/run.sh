@@ -21,6 +21,10 @@ GPU32='linker=c|py_nogc,device=gpu0,floatX=float32'
 #THEANO_FLAGS="$GPU32" python convnet.py
 
 
+cat /proc/cpuinfo |grep "model name"|uniq > ${HOSTNAME}_config.conf
+free >> ${HOSTNAME}_config.conf
+uname -a >>  ${HOSTNAME}_config.conf
+
 THEANO_FLAGS="$MKL32" python rbm.py 1024 1024 1 100 > ${HOSTNAME}_rbm_cpu32_b1.bmark
 THEANO_FLAGS="$MKL32" python rbm.py 1024 1024 60 20 > ${HOSTNAME}_rbm_cpu32_b60.bmark
 
