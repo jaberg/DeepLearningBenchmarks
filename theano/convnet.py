@@ -69,7 +69,7 @@ def eval_and_report(train, name, batchsizes, N=n_examples):
 
 
 def bench_ConvSmall(batchsize):
-    data_x.value = randn(n_examples, 1, 32, 32)
+    data_x.set_value(randn(n_examples, 1, 32, 32))
     w0 = shared(rand(6, 1, 5, 5) * numpy.sqrt(6 / (25.)))
     b0 = shared(zeros(6))
     w1 = shared(rand(16, 6, 5, 5) * numpy.sqrt(6 / (25.)))
@@ -103,7 +103,7 @@ def bench_ConvSmall(batchsize):
 
 
 def bench_ConvMed(batchsize):
-    data_x.value = randn(n_examples, 1, 96, 96)
+    data_x.set_value(randn(n_examples, 1, 96, 96))
     w0 = shared(rand(6, 1, 7, 7) * numpy.sqrt(6 / (25.)))
     b0 = shared(zeros(6))
     w1 = shared(rand(16, 6, 7, 7) * numpy.sqrt(6 / (25.)))
@@ -135,7 +135,7 @@ def bench_ConvMed(batchsize):
 
 
 def bench_ConvLarge(batchsize):
-    data_x.value = randn(n_examples, 1, 256, 256)
+    data_x.set_value(randn(n_examples, 1, 256, 256))
     w0 = shared(rand(6, 1, 7, 7) * numpy.sqrt(6 / (25.)))
     b0 = shared(zeros(6))
     w1 = shared(rand(16, 6, 7, 7) * numpy.sqrt(6 / (25.)))
