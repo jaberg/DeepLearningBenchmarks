@@ -2,7 +2,7 @@ import time, socket
 from theano.tensor import lscalar, lvector, matrix, tanh, dot, grad, log, arange
 from theano.tensor.nnet import softmax
 from theano.tensor.nnet.conv import conv2d
-from theano.tensor.signal.downsample import max_pool2D
+from theano.tensor.signal.downsample import max_pool_2d
 from theano import shared, function, config
 import numpy, theano
 from numpy import asarray, random
@@ -65,10 +65,10 @@ def bench_ConvSmall(batchsize):
     params = [w0, b0, w1, b1, v, c, vv, cc]
 
     c0 = tanh(conv2d(sx, w0, image_shape=(batchsize, 1, 32, 32), filter_shape=(6, 1, 5, 5)) + b0.dimshuffle(0, 'x', 'x'))
-    s0 = tanh(max_pool2D(c0, (2,2))) # this is not the correct leNet5 model, but it's closer to
+    s0 = tanh(max_pool_2d(c0, (2,2))) # this is not the correct leNet5 model, but it's closer to
 
     c1 = tanh(conv2d(s0, w1, image_shape=(batchsize, 6, 14, 14), filter_shape=(16,6,5,5)) + b1.dimshuffle(0, 'x', 'x'))
-    s1 = tanh(max_pool2D(c1, (2,2)))
+    s1 = tanh(max_pool_2d(c1, (2,2)))
 
     p_y_given_x = softmax(dot(tanh(dot(s1.flatten(2), vv)+cc), v)+c)
     nll = -log(p_y_given_x)[arange(sy.shape[0]), sy]
@@ -94,10 +94,10 @@ def bench_ConvMed(batchsize):
     params = [w0, b0, w1, b1, v, c, vv, cc]
 
     c0 = tanh(conv2d(sx, w0, image_shape=(batchsize, 1, 96, 96), filter_shape=(6,1,7,7)) + b0.dimshuffle(0, 'x', 'x'))
-    s0 = tanh(max_pool2D(c0, (3,3))) # this is not the correct leNet5 model, but it's closer to
+    s0 = tanh(max_pool_2d(c0, (3,3))) # this is not the correct leNet5 model, but it's closer to
 
     c1 = tanh(conv2d(s0, w1, image_shape=(batchsize, 6, 30, 30), filter_shape=(16,6,7,7)) + b1.dimshuffle(0, 'x', 'x'))
-    s1 = tanh(max_pool2D(c1, (3,3)))
+    s1 = tanh(max_pool_2d(c1, (3,3)))
 
     p_y_given_x = softmax(dot(tanh(dot(s1.flatten(2), vv)+cc), v)+c)
     nll = -log(p_y_given_x)[arange(sy.shape[0]), sy]
@@ -122,10 +122,10 @@ def bench_ConvLarge(batchsize):
     params = [w0, b0, w1, b1, v, c, vv, cc]
 
     c0 = tanh(conv2d(sx, w0, image_shape=(batchsize, 1, 256, 256), filter_shape=(6,1,7,7)) + b0.dimshuffle(0, 'x', 'x'))
-    s0 = tanh(max_pool2D(c0, (5,5))) # this is not the correct leNet5 model, but it's closer to
+    s0 = tanh(max_pool_2d(c0, (5,5))) # this is not the correct leNet5 model, but it's closer to
 
     c1 = tanh(conv2d(s0, w1, image_shape=(batchsize, 6, 50, 50), filter_shape=(16,6,7,7)) + b1.dimshuffle(0, 'x', 'x'))
-    s1 = tanh(max_pool2D(c1, (4,4)))
+    s1 = tanh(max_pool_2d(c1, (4,4)))
 
     p_y_given_x = softmax(dot(tanh(dot(s1.flatten(2), vv)+cc), v)+c)
     nll = -log(p_y_given_x)[arange(sy.shape[0]), sy]
